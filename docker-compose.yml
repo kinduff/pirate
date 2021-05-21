@@ -1,0 +1,230 @@
+version: "3.2"
+services:
+# Radarr - https://hotio.dev/containers/radarr/
+# <mkdir /volume1/docker/radarr>
+  radarr:
+    container_name: radarr
+    image: ghcr.io/hotio/radarr:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    network_mode: bridge
+    ports:
+      - 7878:7878
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKER_CONFIG_DIR}/radarr:/config:rw
+      - ${DOCKER_STORAGE_DIR}:/data:rw
+      - ${MOVIES_DIR}:/data/media:rw
+
+# Sonarr - https://hotio.dev/containers/sonarr/
+# <mkdir /volume1/docker/sonarr>
+  sonarr:
+    container_name: sonarr
+    image: ghcr.io/hotio/sonarr:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    network_mode: bridge
+    ports:
+      - 8989:8989
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKER_CONFIG_DIR}/sonarr:/config:rw
+      - ${DOCKER_STORAGE_DIR}:/data:rw
+      - ${TV_DIR}:/data/media:rw
+
+# Lidarr - https://hotio.dev/containers/lidarr/
+# <mkdir /volume1/docker/lidarr>
+  lidarr:
+    container_name: lidarr
+    image: ghcr.io/hotio/lidarr:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    network_mode: bridge
+    ports:
+      - 8686:8686
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKER_CONFIG_DIR}/lidarr:/config:rw
+      - ${DOCKER_STORAGE_DIR}:/data:rw
+      - ${MUSIC_DIR}:/data/media:rw
+
+# Bazarr - https://hotio.dev/containers/bazarr/
+# <mkdir /volume1/docker/bazarr>
+  bazarr:
+    container_name: bazarr
+    image: ghcr.io/hotio/bazarr:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    network_mode: bridge
+    ports:
+      - 6767:6767
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKER_CONFIG_DIR}/bazarr:/config:rw
+      - ${MOVIES_DIR}:/data/media/movies:rw
+      - ${TV_DIR}:/data/media/tv:rw
+
+# Watchtower (automatic docker container updater) - https://github.com/containrrr/watchtower
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    network_mode: bridge
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=022
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_INCLUDE_STOPPED=false
+      - WATCHTOWER_MONITOR_ONLY=false
+      - WATCHTOWER_SCHEDULE=0 0 4 * * *
+      - WATCHTOWER_TIMEOUT=10s
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+
+# Deluge VPN - https://github.com/binhex/arch-delugevpn
+# <mkdir /volume1/docker/delugevpn>
+  delugevpn:
+    container_name: delugevpn
+    image: binhex/arch-delugevpn:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    network_mode: bridge
+    ports:
+      - ${DELUGEVPN_PORT_8112}:8112
+      - 58846:58846
+      - 58946:58946
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=022
+      - DEBUG=false
+      - VPN_ENABLED=${VPN_ENABLE}
+      - VPN_CLIENT=${VPN_CLIENT}
+      - VPN_USER=${VPN_USER}
+      - VPN_PASS=${VPN_PASS}
+      - VPN_PROV=${VPN_PROV}
+      - STRICT_PORT_FORWARD=yes
+      - LAN_NETWORK=${LAN_NETWORK}
+      - NAME_SERVERS=209.222.18.222,84.200.69.80,37.235.1.174,1.1.1.1,209.222.18.218,37.235.1.177,84.200.70.40,1.0.0.1
+      - ENABLE_PRIVOXY=${DELUGEVPN_ENABLE_PRIVOXY}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKER_CONFIG_DIR}/delugevpn:/config:rw
+      - ${DOCKER_STORAGE_DIR}/torrents:/data/torrents:rw
+
+# NZBGet - https://hotio.dev/containers/nzbget/
+# <mkdir /volume1/docker/nzbget>
+  nzbget:
+    container_name: nzbget
+    image: ghcr.io/hotio/nzbget:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    network_mode: bridge
+    ports:
+      - 6789:6789/tcp
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKER_CONFIG_DIR}/nzbget:/config:rw
+      - ${DOCKER_STORAGE_DIR}/usenet:/data/usenet:rw
+
+# Jackett - https://github.com/DyonR/docker-Jackettvpn/
+# <mkdir /volume1/docker/jackett>
+  jackett:
+    container_name: jackett
+    image: dyonr/jackettvpn:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    network_mode: bridge
+    ports:
+      - 9117:9117
+    cap_add:
+      - NET_ADMIN
+    privileged: true
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=002
+      - LAN_NETWORK=${LAN_NETWORK}
+      - VPN_ENABLED=${VPN_ENABLE}
+      - VPN_TYPE=${VPN_CLIENT}
+      - ARGS=
+      - DEBUG=no
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKER_CONFIG_DIR}/jackett:/config:rw
+
+# Deemix - https://gitlab.com/Bockiii/deemix-docker/
+# <mkdir /volume1/docker/deemix>
+  deemix:
+    container_name: deemix
+    image: registry.gitlab.com/bockiii/deemix-docker:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    network_mode: bridge
+    ports:
+      - 6595:6595
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK_SET=002
+      - ARL=${DEEMIX_ARL}
+      - DEEZUI=false
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKER_CONFIG_DIR}/deemix:/config:rw
+      - ${MUSIC_DIR}:/downloads:rw
+
+# Calibre - https://hub.docker.com/r/linuxserver/calibre
+#
+  calibre:
+    image: ghcr.io/linuxserver/calibre
+    container_name: calibre
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${BOOKS_DIR}:/config
+    ports:
+      - 8500:8080
+      - 8501:8081
+    restart: unless-stopped
