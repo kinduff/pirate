@@ -216,34 +216,39 @@ services:
 # Calibre - https://hub.docker.com/r/linuxserver/calibre
 #
   calibre:
-    image: ghcr.io/linuxserver/calibre
     container_name: calibre
+    image: ghcr.io/linuxserver/calibre
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    network_mode: bridge
+    ports:
+      - 8500:8080
+      - 8501:8081
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
     volumes:
       - ${BOOKS_DIR}:/config
-    ports:
-      - 8500:8080
-      - 8501:8081
-    restart: unless-stopped
 
 # NZBHydra2 - https://hotio.dev/containers/nzbhydra2
-jackett:
-  container_name: nzbhydra2
-  image: ghcr.io/hotio/nzbhydra2:latest
-  restart: unless-stopped
-  logging:
-    driver: json-file
-  network_mode: bridge
-  ports:
-    - 5076:5076
-  environment:
-    - PUID=${PUID}
-    - PGID=${PGID}
-    - TZ=${TZ}
-    - UMASK=002
-  volumes:
-    - /etc/localtime:/etc/localtime:ro
-    - ${DOCKER_CONFIG_DIR}/nzbhydra2:/config:rw
+# <mkdir /volume1/docker/nzbhydra2>
+  nzbhydra2:
+    container_name: nzbhydra2
+    image: ghcr.io/linuxserver/nzbhydra2:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    network_mode: bridge
+    ports:
+      - 5076:5076
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=002
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKER_CONFIG_DIR}/nzbhydra2:/config:rw
+      - ${DOCKER_STORAGE_DIR}:/downloads:rw
