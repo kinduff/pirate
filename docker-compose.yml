@@ -124,7 +124,7 @@ services:
       - UMASK=022
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${DOCKER_CONFIG_DIR}/delugevpn:/config:rw
+      - ${DOCKER_CONFIG_DIR}/deluge:/config:rw
       - ${DOCKER_STORAGE_DIR}/torrents:/data/torrents:rw
 
 # NZBGet - https://hotio.dev/containers/nzbget
