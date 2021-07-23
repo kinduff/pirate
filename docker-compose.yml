@@ -118,9 +118,9 @@ services:
     depends_on:
       - vpn
     ports:
-      - ${DELUGEVPN_PORT_8112}:8112
-      - 58846:58846
-      - 58946:58946
+      - 8112:8112
+      - 6881:6881
+      - 6881:6881/udp
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
