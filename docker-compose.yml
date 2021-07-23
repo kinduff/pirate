@@ -115,8 +115,8 @@ services:
     logging:
       driver: json-file
     network_mode: service:vpn
-      depends_on:
-        - vpn
+    depends_on:
+      - vpn
     ports:
       - ${DELUGEVPN_PORT_8112}:8112
       - 58846:58846
@@ -140,8 +140,8 @@ services:
     logging:
       driver: json-file
     network_mode: service:vpn
-      depends_on:
-        - vpn
+    depends_on:
+      - vpn
     ports:
       - 6789:6789/tcp
     environment:
