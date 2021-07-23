@@ -117,10 +117,6 @@ services:
     network_mode: service:vpn
     depends_on:
       - vpn
-    ports:
-      - 8112:8112
-      - 6881:6881
-      - 6881:6881/udp
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -142,8 +138,6 @@ services:
     network_mode: service:vpn
     depends_on:
       - vpn
-    ports:
-      - 6789:6789/tcp
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -164,8 +158,6 @@ services:
     network_mode: service:vpn
     depends_on:
       - vpn
-    ports:
-      - 9117:9117
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -241,9 +233,18 @@ services:
 
 # NordVPN - https://github.com/bubuntux/nordvpn
   vpn:
-    image: ghcr.io/bubuntux/nordvpn:latest
+    image: ghcr.io/bubuntux/nordvpn:v3.9.1
     cap_add:
       - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.rp_filter=2
+    devices:
+      - /dev/net/tun
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -251,8 +252,11 @@ services:
       - UMASK=002
       - USER=${VPN_USER}
       - PASS=${VPN_PASS}
-      - CONNECT=${VPN_COUNTRY}
       - TECHNOLOGY=${VPN_TECHNOLOGY}
       - NETWORK=${VPN_NETWORK}
     ports:
-      - 8080:8080
+      - 6789:6789/tcp # nzbget
+      - 8112:8112 # deluge
+      - 6881:6881 # deluge
+      - 6881:6881/udp # deluge
+      - 9117:9117 # jackett
