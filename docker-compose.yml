@@ -233,6 +233,7 @@ services:
 
 # NordVPN - https://github.com/bubuntux/nordvpn
   vpn:
+    container_name: vpn
     image: ghcr.io/bubuntux/nordvpn:v3.9.1
     cap_add:
       - NET_ADMIN
