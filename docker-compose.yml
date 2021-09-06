@@ -261,3 +261,20 @@ services:
       - 6881:6881 # deluge
       - 6881:6881/udp # deluge
       - 9117:9117 # jackett
+
+# Calibre Web - https://hub.docker.com/r/linuxserver/calibre-web
+# <mkdir /volume1/docker/calibre-web>
+  calibre_web:
+    container_name: calibre_web
+    image: ghcr.io/linuxserver/calibre-web
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - DOCKER_MODS=linuxserver/calibre-web:calibre
+    ports:
+      - 8083:8083
+    volumes:
+      - ${DOCKER_CONFIG_DIR}/calibre-web:/config:rw
+      - "${BOOKS_DIR}/Calibre\ Library:/books:rw"
