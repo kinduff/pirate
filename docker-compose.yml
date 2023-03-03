@@ -1,7 +1,8 @@
 version: "3.2"
+
 services:
-# Radarr - https://hotio.dev/containers/radarr
-# <mkdir /volume1/docker/radarr>
+  # Radarr - https://hotio.dev/containers/radarr
+  # <mkdir /volume1/docker/radarr>
   radarr:
     container_name: radarr
     image: ghcr.io/hotio/radarr:latest
@@ -21,8 +22,8 @@ services:
       - ${DOCKER_STORAGE_DIR}:/data:rw
       - ${MOVIES_DIR}:/data/media:rw
 
-# Sonarr - https://hotio.dev/containers/sonarr
-# <mkdir /volume1/docker/sonarr>
+  # Sonarr - https://hotio.dev/containers/sonarr
+  # <mkdir /volume1/docker/sonarr>
   sonarr:
     container_name: sonarr
     image: ghcr.io/hotio/sonarr:latest
@@ -42,8 +43,8 @@ services:
       - ${DOCKER_STORAGE_DIR}:/data:rw
       - ${TV_DIR}:/data/media:rw
 
-# Lidarr - https://hotio.dev/containers/lidarr
-# <mkdir /volume1/docker/lidarr>
+  # Lidarr - https://hotio.dev/containers/lidarr
+  # <mkdir /volume1/docker/lidarr>
   lidarr:
     container_name: lidarr
     image: ghcr.io/hotio/lidarr:latest
@@ -63,8 +64,8 @@ services:
       - ${DOCKER_STORAGE_DIR}:/data:rw
       - ${MUSIC_DIR}:/data/media:rw
 
-# Bazarr - https://hotio.dev/containers/bazarr
-# <mkdir /volume1/docker/bazarr>
+  # Bazarr - https://hotio.dev/containers/bazarr
+  # <mkdir /volume1/docker/bazarr>
   bazarr:
     container_name: bazarr
     image: ghcr.io/hotio/bazarr:latest
@@ -84,39 +85,17 @@ services:
       - ${MOVIES_DIR}:/data/media/movies:rw
       - ${TV_DIR}:/data/media/tv:rw
 
-# Watchtower (automatic docker container updater) - https://github.com/containrrr/watchtower
-  watchtower:
-    container_name: watchtower
-    image: containrrr/watchtower:latest
-    restart: unless-stopped
-    logging:
-      driver: json-file
-    network_mode: bridge
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-      - UMASK=022
-      - WATCHTOWER_CLEANUP=true
-      - WATCHTOWER_INCLUDE_STOPPED=false
-      - WATCHTOWER_MONITOR_ONLY=false
-      - WATCHTOWER_SCHEDULE=0 0 4 * * *
-      - WATCHTOWER_TIMEOUT=10s
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-
-# Deluge VPN - https://github.com/linuxserver/docker-deluge
-# <mkdir /volume1/docker/delugevpn>
+  # Deluge - https://github.com/linuxserver/docker-deluge
+  # <mkdir /volume1/docker/deluge>
   deluge:
     container_name: deluge
     image: ghcr.io/linuxserver/deluge:latest
     restart: unless-stopped
     logging:
       driver: json-file
-    network_mode: service:vpn
+    network_mode: service:wireguard
     depends_on:
-      - vpn
+      - wireguard
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -127,37 +106,17 @@ services:
       - ${DOCKER_CONFIG_DIR}/deluge:/config:rw
       - ${DOCKER_STORAGE_DIR}/torrents:/data/torrents:rw
 
-# NZBGet - https://hotio.dev/containers/nzbget
-# <mkdir /volume1/docker/nzbget>
-  nzbget:
-    container_name: nzbget
-    image: ghcr.io/hotio/nzbget:latest
-    restart: unless-stopped
-    logging:
-      driver: json-file
-    network_mode: service:vpn
-    depends_on:
-      - vpn
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ${DOCKER_CONFIG_DIR}/nzbget:/config:rw
-      - ${DOCKER_STORAGE_DIR}/usenet:/data/usenet:rw
-
-# Jackett - https://github.com/linuxserver/docker-jackett
-# <mkdir /volume1/docker/jackett>
+  # Jackett - https://github.com/linuxserver/docker-jackett
+  # <mkdir /volume1/docker/jackett>
   jackett:
     container_name: jackett
     image: ghcr.io/linuxserver/jackett:latest
     restart: unless-stopped
     logging:
       driver: json-file
-    network_mode: service:vpn
+    network_mode: service:wireguard
     depends_on:
-      - vpn
+      - wireguard
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -168,31 +127,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ${DOCKER_CONFIG_DIR}/jackett:/config:rw
 
-# Deemix - https://gitlab.com/Bockiii/deemix-docker
-# <mkdir /volume1/docker/deemix>
-  deemix:
-    container_name: deemix
-    image: registry.gitlab.com/bockiii/deemix-docker:latest
-    restart: unless-stopped
-    logging:
-      driver: json-file
-    network_mode: bridge
-    ports:
-      - 6595:6595
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-      - UMASK_SET=002
-      - ARL=${DEEMIX_ARL}
-      - DEEZUI=false
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ${DOCKER_CONFIG_DIR}/deemix:/config:rw
-      - ${MUSIC_DIR}:/downloads:rw
-
-# Calibre - https://hub.docker.com/r/linuxserver/calibre
-#
+  # Calibre - https://hub.docker.com/r/linuxserver/calibre
+  # <mkdir /volume1/Books>
   calibre:
     container_name: calibre
     image: ghcr.io/linuxserver/calibre
@@ -210,8 +146,8 @@ services:
     volumes:
       - ${BOOKS_DIR}:/config
 
-# NZBHydra2 - https://hotio.dev/containers/nzbhydra2
-# <mkdir /volume1/docker/nzbhydra2>
+  # NZBHydra2 - https://hotio.dev/containers/nzbhydra2
+  # <mkdir /volume1/docker/nzbhydra2>
   nzbhydra2:
     container_name: nzbhydra2
     image: ghcr.io/linuxserver/nzbhydra2:latest
@@ -231,15 +167,18 @@ services:
       - ${DOCKER_CONFIG_DIR}/nzbhydra2:/config:rw
       - ${DOCKER_STORAGE_DIR}:/downloads:rw
 
-# NordVPN - https://github.com/bubuntux/nordvpn
-  vpn:
-    container_name: vpn
-    image: ghcr.io/bubuntux/nordvpn:v3.9.1
+  # Wireguard - https://hub.docker.com/r/linuxserver/wireguard
+  # <mkdir /volume1/docker/wireguard>
+  wireguard:
+    container_name: wireguard
+    image: jordanpotter/wireguard
+    restart: unless-stopped
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
     sysctls:
-      - net.ipv4.conf.all.rp_filter=2
+      net.ipv4.conf.all.src_valid_mark: 1
+      net.ipv4.conf.all.rp_filter: 2
     devices:
       - /dev/net/tun
     ulimits:
@@ -250,20 +189,18 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-      - UMASK=002
-      - USER=${VPN_USER}
-      - PASS=${VPN_PASS}
-      - TECHNOLOGY=${VPN_TECHNOLOGY}
-      - NETWORK=${VPN_NETWORK}
+      - INTERNAL_SUBNET=192.168.1.0/24
+    volumes:
+      - ${DOCKER_CONFIG_DIR}/wireguard:/config
     ports:
-      - 6789:6789/tcp # nzbget
       - 8112:8112 # deluge
       - 6881:6881 # deluge
       - 6881:6881/udp # deluge
+      - 58846:58846 # deluge
       - 9117:9117 # jackett
 
-# Calibre Web - https://hub.docker.com/r/linuxserver/calibre-web
-# <mkdir /volume1/docker/calibre-web>
+  # Calibre Web - https://hub.docker.com/r/linuxserver/calibre-web
+  # <mkdir /volume1/docker/calibre-web>
   calibre_web:
     container_name: calibre_web
     image: ghcr.io/linuxserver/calibre-web
@@ -278,3 +215,37 @@ services:
     volumes:
       - ${DOCKER_CONFIG_DIR}/calibre-web:/config:rw
       - "${BOOKS_DIR}/Calibre\ Library:/books:rw"
+
+  # Homarr - https://github.com/ajnart/homarr
+  # <mkdir /volume1/docker/homarr>
+  homarr:
+    container_name: homarr
+    image: ghcr.io/ajnart/homarr:latest
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${DOCKER_CONFIG_DIR}/homarr/configs:/app/data/configs
+      - ${DOCKER_CONFIG_DIR}/homarr/icons:/app/public/icons
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "7575:7575"
+
+  # Readarr - https://hub.docker.com/r/linuxserver/readarr
+  # <mkdir /volume1/docker/readarr>
+  readarr:
+    container_name: readarr
+    image: lscr.io/linuxserver/readarr:develop
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${DOCKER_CONFIG_DIR}/readarr:/config
+      - "${BOOKS_DIR}/Calibre\ Library:/books:rw"
+      - ${DOCKER_STORAGE_DIR}/torrents:/data/torrents:rw
+    ports:
+      - 8787:8787
+    restart: unless-stopped
