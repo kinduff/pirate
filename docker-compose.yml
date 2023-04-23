@@ -231,13 +231,14 @@ services:
       - ${DOCKER_CONFIG_DIR}/homarr/icons:/app/public/icons
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - "7575:7575"
+      - 7575:7575
 
   # Readarr - https://hub.docker.com/r/linuxserver/readarr
   # <mkdir /volume1/docker/readarr>
   readarr:
     container_name: readarr
     image: lscr.io/linuxserver/readarr:develop
+    restart: unless-stopped
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -248,4 +249,3 @@ services:
       - ${DOCKER_STORAGE_DIR}/torrents:/data/torrents:rw
     ports:
       - 8787:8787
-    restart: unless-stopped
